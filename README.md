@@ -313,8 +313,8 @@ You can add screenshots here after uploading them to your GitHub repository.
 
 Developed by:
 
-**Roz Warasna**
-**Rama Sayyad**
+**Roz Warasna,**
+**Rama Sayyad,**
 **Aliaa Yaghi**
 
 ---
