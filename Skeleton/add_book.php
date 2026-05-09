@@ -2,160 +2,99 @@
 include 'header.php';
 require 'db.php';
 
-// جلب المؤلفين
-$authors = mysqli_query($conn, "SELECT author_id, first_name FROM author");
+$authors    = mysqli_query($conn,"SELECT author_id, first_name FROM author");
+$publishers = mysqli_query($conn,"SELECT publisher_id, name FROM publisher");
 
-// جلب الناشرين
-$publishers = mysqli_query($conn, "SELECT publisher_id, name FROM publisher");
-
-// عند الإرسال
+$error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $t = $_POST['title'];
-    $c = $_POST['category'];
-    $ty = $_POST['book_type'];
-    $p = $_POST['original_price'];
+    $t   = $_POST['title'];
+    $c   = $_POST['category'];
+    $ty  = $_POST['book_type'];
+    $p   = $_POST['original_price'];
     $pub = $_POST['publisher_id'];
-    $author_selected = $_POST['author'];
-    $available = $_POST['available']; // جديد
+    $aut = $_POST['author'];
+    $av  = $_POST['available'];
 
-    // إدخال الكتاب
     $sql = "INSERT INTO book(title, category, book_type, original_price, publisher_id, available)
-            VALUES('$t', '$c', '$ty', '$p', '$pub', '$available')";
-    
-    mysqli_query($conn, $sql);
+            VALUES('$t','$c','$ty','$p','$pub','$av')";
+    mysqli_query($conn,$sql);
     $book_id = mysqli_insert_id($conn);
-    mysqli_query($conn, "INSERT INTO bookauthor(book_id, author_id) VALUES($book_id, $author_selected)");
-
+    mysqli_query($conn,"INSERT INTO bookauthor(book_id, author_id) VALUES($book_id,$aut)");
     header("Location: dashboard.php?table=book");
+    exit;
 }
 ?>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Add Book</div>
+      <div class="topbar-actions">
+        <a href="dashboard.php?table=book" class="btn btn-secondary btn-sm">← Back to Books</a>
+      </div>
+    </div>
 
-<style>
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f2f5; 
-    margin: 0;
-}
+    <div class="page-content">
+      <div class="form-card">
+        <div class="form-card-title">Add New Book</div>
+        <div class="form-card-subtitle">Fill in the details to add a new book to the catalogue</div>
 
-/* ---------- Form Container ---------- */
-.form-container {
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: calc(100vh - 70px); /* خصم ارتفاع الهيدر */
-}
+        <form method="post">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Title</label>
+              <input name="title" placeholder="Book title" required>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input name="category" placeholder="e.g. Fiction, Science" required>
+            </div>
+          </div>
 
-/* ---------- Form ---------- */
-form { 
-    background: #ffffff; 
-    padding: 35px 30px; 
-    border-radius: 12px; 
-    width: 420px; 
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-}
+          <div class="form-row">
+            <div class="form-group">
+              <label>Book Type</label>
+              <input name="book_type" placeholder="e.g. Hardcover, Digital" required>
+            </div>
+            <div class="form-group">
+              <label>Price (USD)</label>
+              <input name="original_price" type="number" step="0.01" placeholder="0.00" required>
+            </div>
+          </div>
 
-form:hover {
-    transform: translateY(-3px);
-}
+          <div class="form-row">
+            <div class="form-group">
+              <label>Publisher</label>
+              <select name="publisher_id" required>
+                <option value="">Select Publisher…</option>
+                <?php while($row = mysqli_fetch_assoc($publishers)): ?>
+                  <option value="<?= $row['publisher_id'] ?>"><?= htmlspecialchars($row['name']) ?></option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Author</label>
+              <select name="author" required>
+                <option value="">Select Author…</option>
+                <?php while($row = mysqli_fetch_assoc($authors)): ?>
+                  <option value="<?= $row['author_id'] ?>"><?= htmlspecialchars($row['first_name']) ?></option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+          </div>
 
-h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #222;
-    font-weight: 600;
-}
+          <div class="form-group">
+            <label>Availability</label>
+            <select name="available" required>
+              <option value="">Select…</option>
+              <option value="1">Available</option>
+              <option value="0">Not Available</option>
+            </select>
+          </div>
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #555;
-    font-size: 14px;
-}
-
-input, select {
-    display: block; 
-    width: 95%; 
-    margin-bottom: 20px; 
-    padding: 12px;
-    border-radius: 6px; 
-    border: 1px solid #ccc;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    text-align: center; /* النص داخل الحقول في الوسط */
-    background-color: #fff;
-}
-
-input:focus, select:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 5px rgba(74,144,226,0.3);
-}
-
-button { 
-    width: 100%;
-    padding: 12px; 
-    border: none; 
-    border-radius: 6px; 
-    background: #4a90e2; 
-    color: white; 
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer; 
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-button:hover { 
-    background: #357ABD; 
-    transform: translateY(-2px);
-}
-</style>
-
-<div class="form-container">
-    <form method="post">
-
-        <h2>Add Book</h2>
-
-        <label>Title:</label>
-        <input name="title" required placeholder="Enter book title">
-
-        <label>Category:</label>
-        <input name="category" required placeholder="Enter category">
-
-        <label>Type:</label>
-        <input name="book_type" required placeholder="Enter book type">
-
-        <label>Price:</label>
-        <input name="original_price" required placeholder="Enter price">
-
-        <label>Publisher:</label>
-        <select name="publisher_id" required>
-            <option value="">Select Publisher</option>
-            <?php while ($row = mysqli_fetch_assoc($publishers)) { ?>
-                <option value="<?= $row['publisher_id']; ?>">
-                    <?= htmlspecialchars($row['name']); ?>
-                </option>
-            <?php } ?>
-        </select>
-
-        <label>Author:</label>
-        <select name="author" required>
-            <option value="">Select Author</option>
-            <?php while ($row = mysqli_fetch_assoc($authors)) { ?>
-                <option value="<?= $row['author_id']; ?>">
-                    <?= htmlspecialchars($row['first_name']); ?>
-                </option>
-            <?php } ?>
-        </select>
-
-        <label>Available:</label>
-        <select name="available" required>
-            <option value="">Select Availability</option>
-            <option value="1">Available</option>
-            <option value="0">Not Available</option>
-        </select>
-
-        <button>Add</button>
-    </form>
-</div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Book</button>
+            <a href="dashboard.php?table=book" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+<?php include 'footer.php'; ?>

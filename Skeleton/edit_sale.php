@@ -2,55 +2,71 @@
 include 'header.php';
 require 'db.php';
 
-$id = $_GET['id'];
+$id   = intval($_GET['id']);
+$sale = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM sale WHERE sale_id=$id"));
 
-$sql = "SELECT * FROM sale WHERE sale_id = $id";
-$result = mysqli_query($conn, $sql);
-$sale = mysqli_fetch_assoc($result);
+$borrowers = mysqli_query($conn,"SELECT borrower_id, first_name, last_name FROM borrower ORDER BY first_name");
+$books     = mysqli_query($conn,"SELECT book_id, title FROM book ORDER BY title");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $book_id = $_POST['book_id'];
-    $borrower_id = $_POST['borrower_id'];
-    $sale_date = $_POST['sale_date'];
-    $sale_price = $_POST['sale_price'];
-
-    $sql = "
-        UPDATE sale
-        SET 
-            book_id = '$book_id',
-            borrower_id = '$borrower_id',
-            sale_date = '$sale_date',
-            sale_price = '$sale_price'
-        WHERE sale_id = $id
-    ";
-
-    mysqli_query($conn, $sql);
-
+    $bi = $_POST['book_id'];
+    $bo = $_POST['borrower_id'];
+    $sd = $_POST['sale_date'];
+    $sp = $_POST['sale_price'];
+    mysqli_query($conn,"UPDATE sale SET book_id='$bi',borrower_id='$bo',sale_date='$sd',sale_price='$sp' WHERE sale_id=$id");
     header("Location: dashboard.php?table=sale");
+    exit;
 }
 ?>
+    <div class="topbar">
+      <div class="topbar-title">Edit Sale</div>
+      <div class="topbar-actions">
+        <a href="dashboard.php?table=sale" class="btn btn-secondary btn-sm">← Back</a>
+      </div>
+    </div>
 
-<style>
-body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
-h2 { color: #333; }
-form { background: #fff; padding: 20px; border-radius: 8px; width: 350px; }
-input { display: block; width: 100%; margin: 10px 0; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-button { padding: 10px 15px; border: none; border-radius: 4px; background: #9C27B0; color: white; cursor: pointer; }
-button:hover { background: #7b1fa2; }
-</style>
+    <div class="page-content">
+      <div class="form-card">
+        <div class="form-card-title">Edit Sale</div>
+        <div class="form-card-subtitle">Update sale transaction details</div>
 
+        <form method="post">
+          <div class="form-group">
+            <label>Book</label>
+            <select name="book_id" required>
+              <option value="">Select Book…</option>
+              <?php while($r=mysqli_fetch_assoc($books)): ?>
+                <option value="<?= $r['book_id'] ?>" <?= $r['book_id']==$sale['book_id']?'selected':'' ?>><?= htmlspecialchars($r['title']) ?></option>
+              <?php endwhile; ?>
+            </select>
+          </div>
 
+          <div class="form-group">
+            <label>Buyer (Borrower)</label>
+            <select name="borrower_id" required>
+              <option value="">Select Buyer…</option>
+              <?php while($r=mysqli_fetch_assoc($borrowers)): ?>
+                <option value="<?= $r['borrower_id'] ?>" <?= $r['borrower_id']==$sale['borrower_id']?'selected':'' ?>><?= htmlspecialchars($r['first_name'].' '.$r['last_name']) ?></option>
+              <?php endwhile; ?>
+            </select>
+          </div>
 
-<div class="container">
-   <h2>Edit Sale</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sale Date</label>
+              <input type="date" name="sale_date" value="<?= htmlspecialchars($sale['sale_date']) ?>" required>
+            </div>
+            <div class="form-group">
+              <label>Sale Price (USD)</label>
+              <input type="number" step="0.01" name="sale_price" value="<?= htmlspecialchars($sale['sale_price']) ?>" required>
+            </div>
+          </div>
 
-<form method="post">
-    Book ID:<input name="book_id" value="<?php echo $sale['book_id']; ?>"><br>
-    Borrower ID:<input name="borrower_id" value="<?php echo $sale['borrower_id']; ?>"><br>
-    Sale Date:<input type="date" name="sale_date" value="<?php echo $sale['sale_date']; ?>"><br>
-    Sale Price:<input name="sale_price" value="<?php echo $sale['sale_price']; ?>"><br>
-    <button>Save</button>
-</form>
-</div>
-
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="dashboard.php?table=sale" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+<?php include 'footer.php'; ?>

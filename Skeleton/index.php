@@ -5,128 +5,95 @@ require 'db.php';
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $u = trim($_POST['username']);
     $p = trim($_POST['password']);
 
-    // Validate inputs
     if (empty($u) || empty($p)) {
         $error = "Please enter both username and password.";
     } else {
-
-        // Secure prepared statement
         $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->bind_param("s", $u);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Check if user exists
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
-
-            // Verify password
             if (password_verify($p, $user['password'])) {
-                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['user_id']  = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
-
+                $_SESSION['role']     = $user['role'];
                 header("Location: dashboard.php");
                 exit;
             }
         }
-
         $error = "Invalid username or password.";
     }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Library Login</title>
-
-    <style>
-        body {
-            background-color: #e8f0fe; /* soft blue */
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .login-container {
-            background: white;
-            width: 350px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        input {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid #aaa;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4c8bf5;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-size: 17px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #3c75d1;
-        }
-
-        .error {
-            color: red;
-            margin-bottom: 10px;
-        }
-
-        a {
-            display: block;
-            margin-top: 12px;
-            text-decoration: none;
-            color: #4c8bf5;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Library System</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-page">
 
-<div class="login-container">
-    <h2>Login</h2>
+  <!-- LEFT PANEL -->
+  <div class="auth-panel-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">📚</div>
+      <h1>Library System</h1>
+      <p>Manage books, authors, borrowers, loans, and sales in one elegant place.</p>
 
-    <?php if (!empty($error)) echo "<div class='error'>$error</div>"; ?>
+      <div style="margin-top:48px; display:flex; flex-direction:column; gap:16px;">
+        <?php foreach([
+          ['📖','Books & Authors','Track your entire collection with ease'],
+          ['👤','Borrower Management','Monitor loans and member activity'],
+          ['📊','Insightful Reports','Data-driven decisions at a glance'],
+        ] as [$icon,$title,$desc]): ?>
+        <div style="display:flex;align-items:center;gap:14px;text-align:left;">
+          <div style="font-size:22px;width:40px;text-align:center;"><?= $icon ?></div>
+          <div>
+            <div style="color:#fff;font-weight:600;font-size:14px;"><?= $title ?></div>
+            <div style="color:var(--sidebar-text);font-size:12px;"><?= $desc ?></div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
 
-    <form method="post">
-        <input name="username" placeholder="Username">
-        <input type="password" name="password" placeholder="Password">
-        <button>Login</button>
-    </form>
+  <!-- RIGHT PANEL -->
+  <div class="auth-panel-right">
+    <div class="auth-form-box">
+      <h2>Welcome back</h2>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
 
-    <a href="signup.php">Create a New Account</a>
-</div>
+      <?php if (!empty($error)): ?>
+        <div class="alert alert-error">⚠️ <?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+
+      <form method="post">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" placeholder="Enter your username" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">
+          Sign In →
+        </button>
+      </form>
+
+      <div class="auth-link">
+        Don't have an account? <a href="signup.php">Create one</a>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

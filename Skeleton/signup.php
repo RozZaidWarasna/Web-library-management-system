@@ -2,124 +2,97 @@
 session_start();
 require 'db.php';
 
+$error = "";
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $u = $_POST['username'];
-    $e = $_POST['email'];
+    $u = trim($_POST['username']);
+    $e = trim($_POST['email']);
     $p = $_POST['password'];
     $r = $_POST['role'];
 
-    // Secure password hash
-    $hashed = password_hash($p, PASSWORD_DEFAULT);
-
-    // Prepared SQL to prevent SQL Injection
-    $sql = "INSERT INTO users(username, email, password, role) VALUES (?, ?, ?, ?)";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssss", $u, $e, $hashed, $r);
-    mysqli_stmt_execute($stmt);
-
-    // Redirect after successful signup
-    header("Location: index.php");
-    exit;
+    if (empty($u) || empty($e) || empty($p) || empty($r)) {
+        $error = "All fields are required.";
+    } else {
+        $hashed = password_hash($p, PASSWORD_DEFAULT);
+        $sql  = "INSERT INTO users(username, email, password, role) VALUES (?, ?, ?, ?)";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "ssss", $u, $e, $hashed, $r);
+        mysqli_stmt_execute($stmt);
+        header("Location: index.php");
+        exit;
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signup</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background-color: #e8f0fe; /* soft comfortable blue */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-
-    .container {
-        background: white;
-        padding: 40px;
-        width: 340px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    .container h2 {
-        margin-bottom: 20px;
-        font-size: 26px;
-        color: #0D47A1;
-    }
-
-    input, select {
-        width: 100%;
-        padding: 12px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 15px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        background-color: #1565C0;
-        color: white;
-        border: none;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background-color: #0D47A1;
-    }
-
-    .link {
-        margin-top: 15px;
-        font-size: 14px;
-    }
-
-    .link a {
-        color: #1565C0;
-        text-decoration: none;
-    }
-
-    .link a:hover {
-        text-decoration: underline;
-    }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — Library System</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+<body class="auth-page">
 
-<body>
+  <!-- LEFT PANEL -->
+  <div class="auth-panel-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">📚</div>
+      <h1>Library System</h1>
+      <p>Join our library platform and get access to a world of books and resources.</p>
 
-<div class="container">
-    <h2>Signup</h2>
+      <div style="margin-top:40px;">
+        <div style="color:var(--sidebar-text);font-size:13px;line-height:1.9;">
+          ✓ &nbsp;Full access to book catalogue<br>
+          ✓ &nbsp;Track loans and returns<br>
+          ✓ &nbsp;Manage your borrowing history<br>
+          ✓ &nbsp;Access detailed reports
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <form method="post">
-        <input name="username" placeholder="Username" required>
-        <input name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
+  <!-- RIGHT PANEL -->
+  <div class="auth-panel-right">
+    <div class="auth-form-box">
+      <h2>Create account</h2>
+      <p class="auth-subtitle">Fill in your details to get started</p>
 
-        <select name="role" required>
+      <?php if (!empty($error)): ?>
+        <div class="alert alert-error">⚠️ <?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+
+      <form method="post">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" placeholder="Choose a username" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" type="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" placeholder="Create a strong password" required>
+        </div>
+        <div class="form-group">
+          <label for="role">Account role</label>
+          <select id="role" name="role" required>
+            <option value="">Select role…</option>
             <option value="student">Student</option>
             <option value="staff">Staff</option>
             <option value="admin">Admin</option>
-        </select>
-
-        <button>Signup</button>
-
-        <div class="link">
-            Already have an account? <a href="login.php">Login</a>
+          </select>
         </div>
-    </form>
-</div>
+        <button type="submit" class="btn btn-primary btn-full">
+          Create Account →
+        </button>
+      </form>
+
+      <div class="auth-link">
+        Already have an account? <a href="index.php">Sign in</a>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

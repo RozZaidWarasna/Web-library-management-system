@@ -3,120 +3,54 @@ include 'header.php';
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $n = $_POST['name'];
-    $city = $_POST['city'];
-    $country = $_POST['country'];
-    $contact = $_POST['contact_info'];
-
-    $sql = "INSERT INTO publisher(name, city, country, contact_info)
-            VALUES('$n', '$city', '$country', '$contact')";
-
-    mysqli_query($conn, $sql);
-
+    $n   = $_POST['name'];
+    $ci  = $_POST['city'];
+    $cty = $_POST['country'];
+    $ct  = $_POST['contact_info'];
+    mysqli_query($conn,"INSERT INTO publisher(name,city,country,contact_info) VALUES('$n','$ci','$cty','$ct')");
     header("Location: dashboard.php?table=publisher");
     exit;
 }
 ?>
+    <div class="topbar">
+      <div class="topbar-title">Add Publisher</div>
+      <div class="topbar-actions">
+        <a href="dashboard.php?table=publisher" class="btn btn-secondary btn-sm">← Back</a>
+      </div>
+    </div>
 
-<style>
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f2f5; 
-    margin: 0;
-}
+    <div class="page-content">
+      <div class="form-card">
+        <div class="form-card-title">Add New Publisher</div>
+        <div class="form-card-subtitle">Register a new publishing house</div>
 
-/* ---------- Form Container ---------- */
-.form-container {
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: calc(100vh - 70px);
-}
+        <form method="post">
+          <div class="form-group">
+            <label>Publisher Name</label>
+            <input name="name" placeholder="Publisher name" required>
+          </div>
 
-/* ---------- Form ---------- */
-form { 
-    background: #ffffff; 
-    padding: 35px 30px; 
-    border-radius: 12px; 
-    width: 420px; 
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-}
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input name="city" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input name="country" placeholder="Country">
+            </div>
+          </div>
 
-form:hover {
-    transform: translateY(-3px);
-}
+          <div class="form-group">
+            <label>Contact Info</label>
+            <input name="contact_info" placeholder="Phone, email, or website">
+          </div>
 
-h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #222;
-    font-weight: 600;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #555;
-    font-size: 14px;
-}
-
-input {
-    display: block; 
-    width: 95%; 
-    margin-bottom: 20px; 
-    padding: 12px;
-    border-radius: 6px; 
-    border: 1px solid #ccc;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    text-align: center;
-    background-color: #fff;
-}
-
-input:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 5px rgba(74,144,226,0.3);
-}
-
-button { 
-    width: 100%;
-    padding: 12px; 
-    border: none; 
-    border-radius: 6px; 
-    background: #4a90e2; 
-    color: white; 
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer; 
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-button:hover { 
-    background: #357ABD; 
-    transform: translateY(-2px);
-}
-</style>
-
-<div class="form-container">
-    <form method="post">
-        <h2>Add Publisher</h2>
-
-        <label>Name:</label>
-        <input name="name" required placeholder="Enter publisher name">
-
-        <label>City:</label>
-        <input name="city" placeholder="Enter city">
-
-        <label>Country:</label>
-        <input name="country" placeholder="Enter country">
-
-        <label>Contact Info:</label>
-        <input name="contact_info" placeholder="Enter contact info">
-
-        <button>Add</button>
-    </form>
-</div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Publisher</button>
+            <a href="dashboard.php?table=publisher" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+<?php include 'footer.php'; ?>

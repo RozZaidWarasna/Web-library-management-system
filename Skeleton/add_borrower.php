@@ -3,42 +3,54 @@ include 'header.php';
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $first_name = $_POST['first_name'];
-    $last_name  = $_POST['last_name'];
-    $type_id    = $_POST['type_id'];
-    $contact_info = $_POST['contact_info'];
-
-    mysqli_query($conn, "INSERT INTO borrower(first_name,last_name,type_id,contact_info)
-                         VALUES('$first_name','$last_name','$type_id','$contact_info')");
+    $fn = $_POST['first_name'];
+    $ln = $_POST['last_name'];
+    $ti = $_POST['type_id'];
+    $ci = $_POST['contact_info'];
+    mysqli_query($conn,"INSERT INTO borrower(first_name,last_name,type_id,contact_info) VALUES('$fn','$ln','$ti','$ci')");
     header("Location: dashboard.php?table=borrower");
     exit;
 }
 ?>
+    <div class="topbar">
+      <div class="topbar-title">Add Borrower</div>
+      <div class="topbar-actions">
+        <a href="dashboard.php?table=borrower" class="btn btn-secondary btn-sm">← Back</a>
+      </div>
+    </div>
 
-<style>
-body { font-family: Arial, sans-serif; background: #eef2f3; padding: 20px; }
-.header h1 { color: #333; }
-.container { background: #fff; padding: 20px; border-radius: 8px; width: 350px; }
-input { display: block; width: 100%; margin: 10px 0; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-textarea { display: block; width: 100%; margin: 10px 0; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-button { padding: 10px 15px; border: none; border-radius: 4px; background: #3F51B5; color: white; cursor: pointer; }
-button:hover { background: #3949ab; }
-.logout { display: inline-block; margin-top: 20px; color: #f44336; text-decoration: none; }
-.logout:hover { text-decoration: underline; }
-</style>
+    <div class="page-content">
+      <div class="form-card">
+        <div class="form-card-title">Add New Borrower</div>
+        <div class="form-card-subtitle">Register a new library member</div>
 
-<div class="header">
-    <h1>Library Dashboard</h1>
-</div>
+        <form method="post">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input name="first_name" placeholder="First name" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input name="last_name" placeholder="Last name" required>
+            </div>
+          </div>
 
-<div class="container">
-    <h2>Add Borrower</h2>
-    <form method="post">
-        First Name: <input name="first_name"><br>
-        Last Name: <input name="last_name"><br>
-        Type ID: <input name="type_id"><br>
-        Contact Info: <input name="contact_info"><br>
-        <button>Add</button>
-    </form>
-</div>
-<a class="logout" href="logout.php">Logout</a>
+          <div class="form-group">
+            <label>Member Type ID</label>
+            <input name="type_id" placeholder="e.g. 1, 2, 3" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Info</label>
+            <input name="contact_info" placeholder="Phone or email">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Borrower</button>
+            <a href="dashboard.php?table=borrower" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+<?php include 'footer.php'; ?>

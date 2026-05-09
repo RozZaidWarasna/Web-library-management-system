@@ -2,39 +2,58 @@
 include 'header.php';
 require 'db.php';
 
-$id = $_GET['id'] ?? 0;
-$res = mysqli_query($conn, "SELECT * FROM borrower WHERE borrower_id=$id");
-$borrower = mysqli_fetch_assoc($res);
+$id       = intval($_GET['id']);
+$borrower = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM borrower WHERE borrower_id=$id"));
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $first_name = $_POST['first_name'];
-    $last_name  = $_POST['last_name'];
-    $type_id    = $_POST['type_id'];
-    $contact_info = $_POST['contact_info'];
-
-    mysqli_query($conn, "UPDATE borrower SET first_name='$first_name', last_name='$last_name',
-                     type_id='$type_id', contact_info='$contact_info' WHERE borrower_id=$id");
+    $fn = $_POST['first_name'];
+    $ln = $_POST['last_name'];
+    $ti = $_POST['type_id'];
+    $ci = $_POST['contact_info'];
+    mysqli_query($conn,"UPDATE borrower SET first_name='$fn',last_name='$ln',type_id='$ti',contact_info='$ci' WHERE borrower_id=$id");
     header("Location: dashboard.php?table=borrower");
     exit;
 }
 ?>
+    <div class="topbar">
+      <div class="topbar-title">Edit Borrower</div>
+      <div class="topbar-actions">
+        <a href="dashboard.php?table=borrower" class="btn btn-secondary btn-sm">← Back</a>
+      </div>
+    </div>
 
-<style>
-body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
-h2 { color: #333; }
-form { background: #fff; padding: 20px; border-radius: 8px; width: 350px; }
-input { display: block; width: 100%; margin: 10px 0; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-button { padding: 10px 15px; border: none; border-radius: 4px; background: #9C27B0; color: white; cursor: pointer; }
-button:hover { background: #7b1fa2; }
-</style>
+    <div class="page-content">
+      <div class="form-card">
+        <div class="form-card-title">Edit Borrower</div>
+        <div class="form-card-subtitle">Update member details</div>
 
-<div class="container">
-    <h2>Edit Borrower</h2>
-    <form method="post">
-        First Name: <input name="first_name" value="<?php echo htmlspecialchars($borrower['first_name']); ?>"><br>
-        Last Name: <input name="last_name" value="<?php echo htmlspecialchars($borrower['last_name']); ?>"><br>
-        Type ID: <input name="type_id" value="<?php echo htmlspecialchars($borrower['type_id']); ?>"><br>
-        Contact Info: <input name="contact_info" value="<?php echo htmlspecialchars($borrower['contact_info']); ?>"><br>
-        <button>Save</button>
-    </form>
-</div>
+        <form method="post">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input name="first_name" value="<?= htmlspecialchars($borrower['first_name']) ?>" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input name="last_name" value="<?= htmlspecialchars($borrower['last_name']) ?>" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Member Type ID</label>
+            <input name="type_id" value="<?= htmlspecialchars($borrower['type_id']) ?>" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Info</label>
+            <input name="contact_info" value="<?= htmlspecialchars($borrower['contact_info']) ?>">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="dashboard.php?table=borrower" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+<?php include 'footer.php'; ?>
